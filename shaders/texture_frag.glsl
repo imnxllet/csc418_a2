@@ -24,6 +24,21 @@ uniform sampler2D uSampler;	// A GLSL sampler represents a single texture. A sam
 
 void main() {
   // Your solution should go here.
-  // The model is currently rendered in black
-  gl_FragColor = vec4(vec3(0.0), 1.0);
+  // Only the ambient colour calculations have been provided as an example.
+  //gl_FragColor = vec4(Ka * ambientColor, 1.0);
+     vec3 normal = normalize(normalInterp);
+    vec3 lightDir = normalize(lightPos - vertPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 viewDir = normalize(-vertPos);
+
+    float lambertian = max(dot(lightDir,normal), 0.0);
+    float specular = 0.0;
+
+    if(lambertian > 0.0) {
+       float specAngle = max(dot(reflectDir, viewDir), 0.0);
+       specular = pow(specAngle, shininessVal);
+    }
+
+
+    gl_FragColor = vec4(texture2D(uSampler, texCoordInterp).rgb, 1.0);
 }

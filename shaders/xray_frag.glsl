@@ -20,7 +20,25 @@ uniform vec3 lightPos; // Light position in camera space
 
 void main() {
   // Your solution should go here.
-  
-  // The model is currently rendered in black
-  gl_FragColor = vec4(vec3(0.0), 1.0);
+  // Only the ambient colour calculations have been provided as an example.
+  //gl_FragColor = vec4(Ka * ambientColor, 1.0);
+     vec3 normal = normalize(normalInterp);
+    vec3 lightDir = normalize(lightPos - vertPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 viewDir = normalize(-vertPos);
+
+    float lambertian = max(dot(lightDir,normal), 0.0);
+    float specular = 0.0;
+
+    if(lambertian > 0.0) {
+       float specAngle = max(dot(reflectDir, viewDir), 0.0);
+       specular = pow(specAngle, shininessVal);
+    }
+
+    //float opacity = dot(normal, normalize(-I));
+    float opacity = abs(lambertian);
+    opacity = 1.0 - opacity;
+    gl_FragColor = vec4(opacity * (Ka * ambientColor +
+                      Kd* lambertian * diffuseColor +
+                      Ks * specular*specularColor), 1.0);
 }

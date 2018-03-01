@@ -29,14 +29,11 @@ void main(){
 
     
   vec4 vertPos4 = modelview * vec4(position, 1.0);
-  
+   vertPos = vec3(vertPos4) / vertPos4.w; 
   //find N, L, lambertian, 
-  vec4 N = normalize(normalMat * vec4(normal, 1.0));
-  
-  //N normalize normalInterp
-  
-  //L light direction
-  vec4 L = normalize(vec4(vec4(lightPos, 1.0) - vertPos4));
+  normalInterp = vec3(normalMat * vec4(normal, 0.0));
+  vec3 N = normalize(normalInterp);
+  vec3 L = normalize(lightPos - vertPos);
   
   vec4 view = normalize(vec4(vec4(eyePos, 1.0) - vertPos4));
   //use lambertian, shininess to find specular intensity
@@ -44,8 +41,17 @@ void main(){
   
   float lambertian = max(dot(L, N), 0.0);
   
-  vec4 light_refl = reflect(L, N);
-  float specular = pow(max(dot(light_refl, view), 0.0), shininessVal);
+  //vec4 light_refl = normalize(-reflect(L, N));
+  vec4 b = normalize(-vertPos4);
+  float specular = 0.0;
+  if(lambertian > 0.0) {
+    vec3 R = reflect(-L, N);      // Reflected light vector
+    vec3 V = normalize(-vertPos); // Vector to viewer
+    // Compute the specular term
+    float specAngle = max(dot(R, V), 0.0);
+    specular = pow(specAngle, shininessVal);
+  }
+ // float specular = pow(max(dot(light_refl, b), 0.0), shininessVal);
 //L(bi, ni, si) = (ra + Ia) + rdId(max(0, ni.si)) + rsIs(max(0,ri.bi)^a)
 //r=reflection, s = incident light, b=camera, i intensity
   
@@ -56,8 +62,5 @@ void main(){
   
   
   
-  //varying vec3 normalInterp; // Normal
-//varying vec3 vertPos; // Vertex position
-//varying vec3 viewVec; // Interpolated view vector
-//varying vec4 color;
+ 
 }
