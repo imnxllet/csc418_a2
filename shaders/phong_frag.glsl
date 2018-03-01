@@ -21,5 +21,5 @@ uniform vec3 lightPos; // Light position in camera space
 void main() {
   // Your solution should go here.
   // Only the ambient colour calculations have been provided as an example.
-  gl_FragColor = vec4(ambientColor, 1.0);
+  gl_FragColor = vec4(Ka * ambientColor, 1.0);
 }

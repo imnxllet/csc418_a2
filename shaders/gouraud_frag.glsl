@@ -10,4 +10,11 @@ varying vec4 color;
 void main() {
   // Your solution goes here.
   gl_FragColor = color;
+  
+  
+  //normalize normalinterp first
+  
+  //get light direction
+  
+  
 }

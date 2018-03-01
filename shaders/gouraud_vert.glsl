@@ -27,7 +27,37 @@ void main(){
   // Your solution should go here.
   // Only the ambient colour calculations have been provided as an example.
 
+    
   vec4 vertPos4 = modelview * vec4(position, 1.0);
+  
+  //find N, L, lambertian, 
+  vec4 N = normalize(normalMat * vec4(normal, 1.0));
+  
+  //N normalize normalInterp
+  
+  //L light direction
+  vec4 L = normalize(vec4(vec4(lightPos, 1.0) - vertPos4));
+  
+  
+  //use lambertian, shininess to find specular intensity
+  
+  
+  float lambertian = max(dot(L, N), 0.0);
+  
+  vec4 light_refl = normalize(reflect(L, N));
+  float specular = pow(max(dot(light_refl, normalize(vec4(eyePos, 1.0))), 0.0), shininessVal);
+//L(bi, ni, si) = (ra + Ia) + rdId(max(0, ni.si)) + rsIs(max(0,ri.bi)^a)
+//r=reflection, s = incident light, b=camera, i intensity
+  
+  //color = vec4(Ka * ambientColor + Kd * lambertian * diffuseColor, 1.0); 
+  color = vec4(Ka * ambientColor + Kd * lambertian * diffuseColor + Ks * specular * specularColor, 1.0); 
   gl_Position = projection * vertPos4;
-  color = vec4(ambientColor, 1.0); 
+  
+  
+  
+  
+  //varying vec3 normalInterp; // Normal
+//varying vec3 vertPos; // Vertex position
+//varying vec3 viewVec; // Interpolated view vector
+//varying vec4 color;
 }
