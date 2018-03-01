@@ -38,14 +38,14 @@ void main(){
   //L light direction
   vec4 L = normalize(vec4(vec4(lightPos, 1.0) - vertPos4));
   
-  
+  vec4 view = normalize(vec4(vec4(eyePos, 1.0) - vertPos4));
   //use lambertian, shininess to find specular intensity
   
   
   float lambertian = max(dot(L, N), 0.0);
   
-  vec4 light_refl = normalize(reflect(L, N));
-  float specular = pow(max(dot(light_refl, normalize(vec4(eyePos, 1.0))), 0.0), shininessVal);
+  vec4 light_refl = reflect(L, N);
+  float specular = pow(max(dot(light_refl, view), 0.0), shininessVal);
 //L(bi, ni, si) = (ra + Ia) + rdId(max(0, ni.si)) + rsIs(max(0,ri.bi)^a)
 //r=reflection, s = incident light, b=camera, i intensity
   
