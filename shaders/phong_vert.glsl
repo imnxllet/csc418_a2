@@ -12,13 +12,11 @@ varying vec3 viewVec; // Vector from the eye to the vertex
 
 
 void main(){
-  // Your solution should go here.
-  // Only the ambient colour calculations have been provided as an example.
-  vec4 vertPos4 = modelview * vec4(position, 1.0);
-  gl_Position = projection * vertPos4;
+    // Your solution should go here.
+    // Only the ambient colour calculations have been provided as an example.
+    vec4 vertPos4 = modelview * vec4(position, 1.0);
+    gl_Position = projection * vertPos4;
 
-
-
-    vertPos = vec3(vertPos4) / vertPos4.w;
+    vertPos = vec3(vertPos4);
     normalInterp = vec3(normalMat * vec4(normal, 0.0));
 }

@@ -15,15 +15,39 @@ uniform float shininessVal; // Shininess
 uniform vec3 ambientColor;
 uniform vec3 diffuseColor;
 uniform vec3 specularColor;
-varying highp vec2 texCoordInterp;
-uniform vec3 lightPos; // Light position in camera space
-// HINT: Use the built-in variable gl_FragCoord to get the screen-space coordinates
 
+uniform vec3 lightPos; // Light position in camera space
+
+// HINT: Use the built-in variable gl_FragCoord to get the screen-space coordinates
+float Halftone(float lambertian){
+    // Create halftone texture
+  vec2 pixel = floor(vec2(gl_FragCoord.xy));
+
+  float diameter = 8.0; 
+  //Compute distance between pixel and origin of nearest circle
+  pixel = mod(pixel, vec2(diameter));
+  
+  float radius = diameter * 0.5;
+  float distance = distance(pixel, vec2(radius)) / radius; 
+  
+  //Handle small dots
+  if (distance >= 0.01) { 
+    vec3 diffusion = vec3(diffuseColor * Kd * lambertian);
+    distance += diffusion.r + diffusion.g + diffusion.b; // Scale circle size by diffuse color
+  }
+
+  return clamp(pow(distance,1.0), 0.0, 1.0); 
+}
 void main() {
   // Your solution should go here.
-  // Only the ambient colour calculations have been provided as an example.
-  //gl_FragColor = vec4(Ka * ambientColor, 1.0);
-     vec3 normal = normalize(normalInterp);
+  // Only the background color calculations have been provided as an example.
+  // gl_FragColor = vec4(diffuseColor * Kd, 1.0);
+  
+  // Halftone requires a grid of dots coloured by the ambient colour, which are
+  // decreased in size by the dot product for the diffuse calculation.
+  
+  // Light values
+   vec3 normal = normalize(normalInterp);
     vec3 lightDir = normalize(lightPos - vertPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     vec3 viewDir = normalize(-vertPos);
@@ -36,62 +60,7 @@ void main() {
        specular = pow(specAngle, shininessVal);
     }
 
-
-      ivec2 halftoneResolution = ivec2(600, 600);
   
-  float angle = -45.0;
-  float contrastDelta = 0.3; // higher -> grey gets darker
-  float brightness = 0.0; // analog for white
-  float blackness = 1.1; // higher -> larger areas completely covered by dots
-  float smooth = 0.2;
-  vec4 dotColor = vec4(0.0, 0.0, 0.0, 1.0);
-  vec4 backgroundColor = vec4(Ka * ambientColor +
-                      Kd* lambertian * diffuseColor +
-                      Ks * specular*specularColor,1.0);
-  
-  mat2 rotate = mat2(cos(angle), -sin(angle),
-                           sin(angle), cos(angle));
-  
-  mat2 inverse_rotate = mat2(cos(angle), sin(angle),
-                                  -sin(angle), cos(angle));
-
-  /* Distance to next dot divided by two. */ 
-  vec2 halfLineDist = vec2(1.0)/vec2(halftoneResolution)/vec2(2.0);
-
-  /* Find center of the halftone dot. */
-  vec2 center =  rotate * texCoordInterp.st;
-  center = floor(center * vec2(halftoneResolution)) / vec2(halftoneResolution);
-  center += halfLineDist;
-  center = inverse_rotate * center;
-
- 
- // float luminance = new.r;
-
-  /*gl_FragColor = vec4(Ka * ambientColor +
-                      Kd* lambertian * diffuseColor +
-                      Ks * specular*specularColor, 1.0);*/
-
-
-  /* Radius of the halftone dot. */
-  float radius = sqrt(2.0)*halfLineDist.x*(1.0 - lambertian)*blackness;
-
-  float contrast = 1.0 + (contrastDelta)/(2.0);
-  float radiusSqrd = contrast * pow(radius,2.0)
-    - (contrastDelta * halfLineDist.x*halfLineDist.x)/2.0
-    - brightness * halfLineDist.x*halfLineDist.x;
-
-
-  vec2 power = pow(abs(center-texCoordInterp.st),vec2(2.0));
-  float pixelDist2 = power.x + power.y; // Distance pixel to center squared.
-
-  float delta = smooth*pow(halfLineDist.x,2.0);
-  float gradient = smoothstep(radiusSqrd-delta, radiusSqrd+delta, pixelDist2);
-
-
-  
-  gl_FragColor = mix(dotColor, backgroundColor, gradient);
-    
-
-
-
+  gl_FragColor = vec4((ambientColor * (1.0 - Halftone(lambertian))) + (diffuseColor * Halftone(lambertian)), 1.0);
 }
+
